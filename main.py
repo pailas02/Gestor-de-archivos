@@ -9,26 +9,9 @@ from tkinter import ttk, filedialog, messagebox, simpledialog
 class DirectoryExplorer:
 
     def __init__(self, master):
-    
         # Configuración inicial de la interfaz
         self.master = master
         self.master.title("Explorador de Archivos")
-        
-        # Configurar botones (por ahora estarán ocultos)
-        self.buttons = [
-            ("Destino", self.go_up),
-            ("Crear carpeta", self.agregar),
-            ("Crear Archivo", self.agregar_archivo),
-            ("Renombrar", self.rename),
-            ("Copiar", self.copiar),
-            ("Cortar", self.cortar),
-            ("Pegar", self.pegar),
-            ("Eliminar", self.delete),
-            ("Salir", self.quit)
-        ]
-        
-        # Configurar menú contextual
-        self.setup_context_menu()
 
         # Estructuras de datos para el árbol y la ruta actual
         self.tree = NaryTree()
@@ -38,6 +21,7 @@ class DirectoryExplorer:
         self.path_var = tk.StringVar()
         self.path_var.set(self.current_path)
 
+        
         # Variables para copiar y cortar
         self.path_copy = None
         self.is_copiar = False
@@ -58,20 +42,46 @@ class DirectoryExplorer:
         self.entry = tk.Entry(self.master)
         self.entry.place(relx=1, y=0, anchor="ne")
         self.entry.bind("<KeyRelease>", lambda event: self.find_archive())
-        
-            
+
+        # Configuración de botones
+        self.setup_buttons()
+
+    def setup_buttons(self):
+        # Crear y posicionar botones en la interfaz
+        button_frame = tk.Frame(self.master)
+        button_frame.pack()
+
+        self.buttons = [
+            ("Destino", self.go_up),
+            ("Crear carpeta", self.agregar),
+            ("Crear Archivo", self.agregar_archivo),
+            ("Renombrar", self.rename),
+            ("Copiar", self.copiar),
+            ("Cortar", self.cortar),
+            ("Pegar", self.pegar),
+            ("Eliminar", self.delete),
+            ("Salir", self.quit)
+        ]
+         # Configurar menú contextual
+        self.setup_context_menu()
+
     def setup_context_menu(self):
         # Crear el menú contextual
         self.context_menu = tk.Menu(self.master, tearoff=0)
         for text, command in self.buttons:
             self.context_menu.add_command(label=text, command=command)
 
-        # Asociar menú contextual a clic derecho
+            # Asociar menú contextual a clic derecho
         self.master.bind("<Button-3>", self.show_context_menu)
-
+            
     def show_context_menu(self, event):
-        # Mostrar el menú contextual en las coordenadas del clic derecho
+         # Mostrar el menú contextual en las coordenadas del clic derecho
         self.context_menu.post(event.x_root, event.y_root)
+
+
+        # for text, command in buttons:
+        #     button = tk.Button(button_frame, text=text, command=command)
+        #     button.pack(side=tk.LEFT)
 
     def populate_treeview(self):
         # Llenar el árbol visual y binario con los elementos del directorio actual
@@ -222,7 +232,9 @@ class DirectoryExplorer:
     def find_archive(self):
         # Buscar archivos y actualizar el árbol visual con los resultados
         valor = self.entry.get()
+        node_list = self.tree.search_node(valor)
         if valor != "":
+            valor= f"Buscar*{valor}.*"
             node_list = self.tree.search_node(valor)
             if node_list is not None:
                 self.treeview.delete(*self.treeview.get_children())
@@ -244,5 +256,6 @@ class DirectoryExplorer:
 
 if __name__ == "__main__":
     root = tk.Tk()
+    root.geometry("800x600")  #
     DirectoryExplorer(root)
     root.mainloop()
